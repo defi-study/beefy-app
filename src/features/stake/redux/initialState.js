@@ -1,9 +1,11 @@
-import { staking as pools } from '../../configure';
+import { getNetworkStakePools } from '../../helpers/getNetworkData';
 
-const poolsInfo = [];
+const pools = getNetworkStakePools();
+let poolsInfo = [];
+const poolData = [];
 const initPoolsInfo = () => {
   for (let key in pools) {
-    poolsInfo.push({
+    poolData.push({
       id: pools[key].id,
       name: pools[key].name,
       staked: 0,
@@ -11,6 +13,7 @@ const initPoolsInfo = () => {
       apy: 0,
     });
   }
+  poolsInfo = poolData;
 };
 
 initPoolsInfo();
@@ -31,7 +34,9 @@ const initialState = {
   canWithdrawTime,
   balance,
   poolsInfo,
+  poolData,
   fetchPoolsInfoPending: false,
+  fetchPoolDataPending: [false],
   checkApprovalPending: [false, false, false, false, false],
   fetchBalancePending: [false, false, false, false, false],
   fetchCurrentlyStakedPending: [false, false, false, false, false],

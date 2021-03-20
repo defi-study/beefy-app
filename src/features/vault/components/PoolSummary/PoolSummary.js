@@ -12,7 +12,6 @@ import styles from './styles';
 import PoolPaused from './PoolPaused/PoolPaused';
 import PoolTitle from './PoolTitle/PoolTitle';
 import LabeledStat from './LabeledStat/LabeledStat';
-import SummaryActions from './SummaryActions/SummaryActions';
 
 const useStyles = makeStyles(styles);
 
@@ -38,12 +37,22 @@ const PoolSummary = ({
         ? t('Vault-DepositsPausedTitle')
         : null;
 
-    if(launchpool) {
-      state = 'Boosted by ' + launchpool.name
+    if (launchpool) {
+      state = t('Stake-BoostedBy', { name: launchpool.name }) ;
     }
 
     return state === null ? '' : <PoolPaused message={t(state)} isBoosted={!!launchpool} />;
   };
+
+  const balanceUsd =
+    balanceSingle > 0 && fetchVaultsDataDone ? formatTvl(balanceSingle, pool.oraclePrice) : '';
+  const deposited = byDecimals(
+    sharesBalance.multipliedBy(new BigNumber(pool.pricePerFullShare)),
+    pool.tokenDecimals
+  );
+  const depositedUsd =
+    deposited > 0 && fetchVaultsDataDone ? formatTvl(deposited, pool.oraclePrice) : '';
+  const mobilePadding = balanceSingle > 0 || deposited > 0 ? '24px' : '10px';
 
   return (
     <AccordionSummary
@@ -64,34 +73,30 @@ const PoolSummary = ({
         container
         alignItems="center"
         justify="space-around"
-        spacing={1}
-        style={{ paddingTop: '16px', paddingBottom: '16px' }}
+        style={{ paddingTop: '20px', paddingBottom: '20px' }}
       >
         {vaultStateTitle(pool.status, pool.depositsPaused)}
         <PoolTitle
           name={pool.name}
           logo={pool.logo}
-          description={pool.tokenDescription}
-          url={pool.tokenDescriptionUrl}
+          description={t('Vault-Description', { vault: pool.tokenDescription })}
           launchpool={launchpool}
+          addLiquidityUrl={pool.addLiquidityUrl}
         />
-        <Grid item md={7} xs={4}>
+        <Grid item md={8} xs={7}>
           <Grid item container justify="space-between">
             <Hidden smDown>
               <LabeledStat
                 value={formatDecimals(balanceSingle)}
+                subvalue={balanceUsd}
                 label={t('Vault-Balance')}
                 isLoading={!fetchBalancesDone}
                 xs={5}
                 md={3}
               />
               <LabeledStat
-                value={formatDecimals(
-                  byDecimals(
-                    sharesBalance.multipliedBy(new BigNumber(pool.pricePerFullShare)),
-                    pool.tokenDecimals
-                  )
-                )}
+                value={formatDecimals(deposited)}
+                subvalue={depositedUsd}
                 label={t('Vault-Deposited')}
                 isLoading={!fetchBalancesDone}
                 xs={5}
@@ -125,27 +130,24 @@ const PoolSummary = ({
             </Hidden>
           </Grid>
         </Grid>
-        <SummaryActions
-          helpUrl={pool.tokenDescriptionUrl}
-          toggleCard={toggleCard}
-          isOpen={isOpen}
-        />
 
         <Hidden mdUp>
-          <Grid item xs={12} style={{ display: 'flex' }} className={classes.mobilePadding}>
+          <Grid
+            item
+            xs={12}
+            style={{ display: 'flex', paddingTop: mobilePadding }}
+            className={classes.mobilePadding}
+          >
             <LabeledStat
               value={formatDecimals(balanceSingle)}
+              subvalue={balanceUsd}
               label={t('Vault-Balance')}
               isLoading={!fetchBalancesDone}
               xs={6}
             />
             <LabeledStat
-              value={formatDecimals(
-                byDecimals(
-                  sharesBalance.multipliedBy(new BigNumber(pool.pricePerFullShare)),
-                  pool.tokenDecimals
-                )
-              )}
+              value={formatDecimals(deposited)}
+              subvalue={depositedUsd}
               label={t('Vault-Deposited')}
               xs={6}
               align="start"

@@ -2,15 +2,18 @@ import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import BigNumber from 'bignumber.js';
 
 import TVLLoader from './TVLLoader/TVLLoader';
-import { useConnectWallet } from '../../../home/redux/hooks';
+import NetworksToggle from 'components/NetworksToggle/NetworksToggle';
+import { useConnectWallet } from 'features/home/redux/hooks';
 import { useFetchBalances, useFetchVaultsData, useFetchApys } from '../../redux/hooks';
 import VisiblePools from '../VisiblePools/VisiblePools';
 import styles from './styles';
 import usePoolsTvl from '../../hooks/usePoolsTvl';
 import { formatGlobalTvl } from 'features/helpers/format';
-import {useFetchPoolsInfo} from "../../../stake/redux/fetchPoolsInfo";
+import { useFetchPoolsInfo } from 'features/stake/redux/fetchPoolsInfo';
+import { byDecimals } from 'features/helpers/bignumber';
 
 const FETCH_INTERVAL_MS = 30 * 1000;
 
@@ -25,6 +28,18 @@ export default function Pools() {
   const { apys, fetchApys, fetchApysDone } = useFetchApys();
   const { poolsTvl } = usePoolsTvl(pools);
   const classes = useStyles();
+
+  let myTvl = 0;
+  pools.forEach(pool => {
+    const sharesBalance = new BigNumber(tokens[pool.earnedToken].tokenBalance);
+    if (sharesBalance > 0) {
+      const deposited = byDecimals(
+        sharesBalance.multipliedBy(new BigNumber(pool.pricePerFullShare)),
+        pool.tokenDecimals
+      );
+      myTvl += deposited * pool.oraclePrice;
+    }
+  });
 
   useEffect(() => {
     fetchPoolsInfo();
@@ -49,21 +64,32 @@ export default function Pools() {
 
   return (
     <Grid container className={classes.container}>
-      <Grid item xs={12}>
-        <div className={classes.titles}>
-          <h1 className={classes.title}>{t('Vault-MainTitle')}</h1>
-          <h1 className={classes.title}>
+      <Grid item xs={6}>
+        <h1 className={classes.title}>{t('Vault-Network')}</h1>
+        <NetworksToggle />
+      </Grid>
+      <Grid item xs={6}>
+        <div className={classes.tvl}>
+          <span className={classes.title}>
             TVL{' '}
             {fetchVaultsDataDone && poolsTvl > 0 ? (
               formatGlobalTvl(poolsTvl)
             ) : (
               <TVLLoader className={classes.titleLoader} />
             )}
-          </h1>
-        </div>
-        <div className={classes.subtitles}>
-          <h3 className={classes.subtitle}>{t('Vault-SecondTitle')}</h3>
-          <h3 className={classes.subtitle}>{t('Vault-WithdrawFee')}</h3>
+          </span>
+
+          <span className={classes.text}>
+            {t('Vault-Deposited')}{' '}
+            {fetchVaultsDataDone ? (
+              formatGlobalTvl(myTvl)
+            ) : (
+              <TVLLoader className={classes.titleLoader} />
+            )}
+          </span>
+          <h3 className={classes.subtitle} style={{ marginTop: '24px' }}>
+            {t('Vault-WithdrawFee')}
+          </h3>
         </div>
       </Grid>
 

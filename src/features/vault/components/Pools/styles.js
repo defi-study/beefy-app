@@ -2,9 +2,10 @@ const styles = theme => ({
   container: {
     paddingTop: '4px',
   },
-  titles: {
+  tvl: {
     display: 'flex',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
   },
   title: {
     fontSize: '32px',
@@ -18,10 +19,6 @@ const styles = theme => ({
   titleLoader: {
     marginLeft: '12px',
   },
-  subtitles: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
   subtitle: {
     fontSize: '14px',
     letterSpacing: '0',
@@ -31,6 +28,16 @@ const styles = theme => ({
     },
     fontWeight: '550',
     color: theme.palette.text.secondary,
+    marginTop: '0',
+  },
+  text: {
+    fontSize: '24px',
+    letterSpacing: '0',
+    lineHeight: '32px',
+    fontWeight: '550',
+    color: theme.palette.text.primary,
+    display: 'flex',
+    alignItems: 'center',
   },
 });
 
