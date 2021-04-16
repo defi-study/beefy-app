@@ -6,6 +6,7 @@ const DEFAULT = {
   hideZeroBalances: false,
   hideZeroVaultBalances: false,
   showBoosted: false,
+  showExperimental: false,
 };
 
 const KEY = 'filteredPools';
@@ -40,11 +41,6 @@ const useFilteredPools = (pools, tokens) => {
     filteredPools = hideZeroVaultBalances(filteredPools, tokens);
   }
 
-  // Show all vaults to new users
-  if (filteredPools.length === 0) {
-    filteredPools = [...pools];
-  }
-
   if (filters.hideDecomissioned) {
     filteredPools = hideDecomissioned(filteredPools);
   }
@@ -54,8 +50,16 @@ const useFilteredPools = (pools, tokens) => {
     filteredPools = showBoosted(filteredPools);
   }
 
+  filteredPools = Experimental(filteredPools, filters.showExperimental);
+
   return { filteredPools, toggleFilter, filters };
 };
+
+function Experimental(pools, show) {
+  return pools.filter(pool => {
+    return show ? pool.experimental : !pool.experimental;
+  });
+}
 
 function showBoosted(pools) {
   return pools.filter(pool => {

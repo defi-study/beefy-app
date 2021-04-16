@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useEffect } from 'react';
 import Accordion from '@material-ui/core/Accordion';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
@@ -9,12 +9,13 @@ import { byDecimals } from 'features/helpers/bignumber';
 import PoolSummary from '../PoolSummary/PoolSummary';
 import PoolDetails from '../PoolDetails/PoolDetails';
 import styles from './styles';
+import { useFetchPoolData } from '../../../stake/redux/fetchPoolData';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles(styles);
 
 const Pool = ({
   pool,
-  poolsInfo,
   index,
   tokens,
   apy,
@@ -26,15 +27,17 @@ const Pool = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleCard = useCallback(() => setIsOpen(!isOpen), [isOpen]);
+  const stake = useSelector((state) => state.stake.pools);
 
   let balanceSingle = byDecimals(tokens[pool.token].tokenBalance, pool.tokenDecimals);
   let sharesBalance = new BigNumber(tokens[pool.earnedToken].tokenBalance);
 
   const checkLaunchpool = () => {
-    for (let index in poolsInfo) {
-      if(pool.launchpool && poolsInfo[index].id === pool.launchpool) {
-        poolsInfo[index].poolIndex = Number(index) + 1;
-        return poolsInfo[index];
+    const timestamp = Math.floor(Date.now() / 1000);
+    for (let index in stake) {
+      if(stake[index].token === pool.earnedToken && stake[index].periodFinish >= timestamp) {
+        stake[index].poolIndex = Number(index) + 1;
+        return stake[index];
       }
     }
   }

@@ -161,7 +161,10 @@ export default function StakePool(props) {
   }, [currentlyStaked[index], index]);
 
   useEffect(() => {
-    const amount = byDecimals(rewardsAvailable[index], pools[index].earnedTokenDecimals);
+    let amount = byDecimals(rewardsAvailable[index], pools[index].earnedTokenDecimals);
+    if (pools[index].token === 'mooAutoWbnbFixed') {
+      amount = amount.multipliedBy(96).dividedBy(100);
+    }
     setMyRewardsAvailable(amount);
   }, [rewardsAvailable[index], index]);
 
@@ -190,18 +193,20 @@ export default function StakePool(props) {
       fetchBalance(index);
       fetchCurrentlyStaked(index);
       fetchRewardsAvailable(index);
-      fetchHalfTime(index);
-      fetchPoolData(index);
-      const id = setInterval(() => {
+    }
+    fetchHalfTime(index);
+    fetchPoolData(index);
+    const id = setInterval(() => {
+      if (address) {
         checkApproval(index);
         fetchBalance(index);
         fetchCurrentlyStaked(index);
         fetchRewardsAvailable(index);
-        fetchHalfTime(index);
-        fetchPoolData(index);
-      }, 10000);
-      return () => clearInterval(id);
-    }
+      }
+      fetchHalfTime(index);
+      fetchPoolData(index);
+    }, 10000);
+    return () => clearInterval(id);
   }, [address, index]);
 
   const handleModal = (state, action = false) => {
@@ -266,13 +271,17 @@ export default function StakePool(props) {
         <Grid item xs={6} sm={6} md={3}>
           <Typography className={classes.title}>{`${
             Math.floor(myBalance.toNumber() * 10000) / 10000
-          } ${pools[index].token}`}</Typography>
+          } ${
+            pools[index].token === 'mooAutoWbnbFixed' ? 'mooAutoWBNB' : pools[index].token
+          }`}</Typography>
           <Typography className={classes.subtitle}>{t('Stake-Balancer-Your-Balance')}</Typography>
         </Grid>
         <Grid item xs={6} sm={6} md={3}>
           <Typography className={classes.title}>{`${
             Math.floor(myCurrentlyStaked.toNumber() * 10000) / 10000
-          } ${pools[index].token}`}</Typography>
+          } ${
+            pools[index].token === 'mooAutoWbnbFixed' ? 'mooAutoWBNB' : pools[index].token
+          }`}</Typography>
           <Typography className={classes.subtitle}>{t('Stake-Balancer-Current-Staked')}</Typography>
         </Grid>
         <Grid item xs={6} sm={6} md={3}>

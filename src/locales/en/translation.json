@@ -12,6 +12,7 @@
   "Vault-ApprovalError": "Approval error: {{error}}",
   "Vault-DepositButton": "Deposit",
   "Vault-DepositButtonAll": "Deposit All",
+  "Vault-DepositTokensNote": "You will receive {{mooToken}} token as a receipt for your deposited {{assetToken}} assets. The receipt is needed for withdrawing your {{assetToken}}, do not trade or transfer the {{mooToken}} to strangers!",
   "Vault-DepositFee": "There is a <0.1% deposit fee, no withdrawal fee",
   "Vault-Deposited": "Deposited",
   "Vault-DepositSuccess": "Deposit success",
@@ -37,7 +38,8 @@
   "Vault-DepositsRetiredMsg": "Vault retired, withdraw your funds ASAP",
   "Vault-Staked": "Staked",
   "Vault-Description": "Uses: {{vault}}",
-  "Vault-Network": "Network",
+  "Vault-Network": "Select Network",
+  "Vault-Experimental": "Experimental",
   "Hide-Zero-Balances": "Hide Zero Balances",
   "Hide-Zero-Vault-Balances": "Deposited Vaults",
   "Retired-Vaults": "Retired Vaults",
@@ -88,5 +90,10 @@
   "Stake-Total-Value-Locked": "Total Value Locked",
   "Stake-Your-Pool": "Your Pool",
   "Stake-Current-Daily": "Current Daily Rate",
-  "Add-Liquidity": "Add Liquidity"
+  "Add-Liquidity": "Add Liquidity",
+  "Buy-Token": "Buy Token",
+  "Wrap-BNB": "Wrap BNB",
+  "Boost": "Boost",
+  "Experimental": "Experimental",
+  "Select-Network": "Select Network"
 }

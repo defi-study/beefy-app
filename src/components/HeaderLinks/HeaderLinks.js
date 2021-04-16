@@ -62,6 +62,8 @@ const HeaderLinks = ({
     switch (event) {
       case 'Deutsch':
         return i18n.changeLanguage('de').then(() => setLanguage(event));
+      case 'Ελληνικά':
+        return i18n.changeLanguage('el').then(() => setLanguage(event));
       case 'English':
         return i18n.changeLanguage('en').then(() => setLanguage(event));
       case 'Español':
@@ -76,6 +78,8 @@ const HeaderLinks = ({
         return i18n.changeLanguage('it').then(() => setLanguage(event));
       case '한글':
         return i18n.changeLanguage('ko').then(() => setLanguage(event));
+      case 'Nederlands':
+        return i18n.changeLanguage('nl').then(() => setLanguage(event));
       case 'Português':
         return i18n.changeLanguage('pt').then(() => setLanguage(event));
       case 'Pусский':
@@ -116,12 +120,14 @@ const HeaderLinks = ({
           dropdownList={[
             'Deutsch',
             'English',
+            'Ελληνικά',
             'Español',
             'Français',
             'हिन्दी',
             'Bahasa Indonesia',
             'Italiano',
             '한글',
+            'Nederlands',
             'Português',
             'Pусский',
             'Svenska',

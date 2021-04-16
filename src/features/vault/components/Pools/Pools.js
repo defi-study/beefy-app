@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import BigNumber from 'bignumber.js';
 
 import TVLLoader from './TVLLoader/TVLLoader';
 import NetworksToggle from 'components/NetworksToggle/NetworksToggle';
@@ -10,10 +9,8 @@ import { useConnectWallet } from 'features/home/redux/hooks';
 import { useFetchBalances, useFetchVaultsData, useFetchApys } from '../../redux/hooks';
 import VisiblePools from '../VisiblePools/VisiblePools';
 import styles from './styles';
-import usePoolsTvl from '../../hooks/usePoolsTvl';
+import { usePoolsTvl, useUserTvl } from '../../hooks/usePoolsTvl';
 import { formatGlobalTvl } from 'features/helpers/format';
-import { useFetchPoolsInfo } from 'features/stake/redux/fetchPoolsInfo';
-import { byDecimals } from 'features/helpers/bignumber';
 
 const FETCH_INTERVAL_MS = 30 * 1000;
 
@@ -23,40 +20,29 @@ export default function Pools() {
   const { t } = useTranslation();
   const { web3, address } = useConnectWallet();
   const { pools, fetchVaultsData, fetchVaultsDataDone } = useFetchVaultsData();
-  const { poolsInfo, fetchPoolsInfo } = useFetchPoolsInfo();
   const { tokens, fetchBalances, fetchBalancesDone } = useFetchBalances();
   const { apys, fetchApys, fetchApysDone } = useFetchApys();
   const { poolsTvl } = usePoolsTvl(pools);
+  const { userTvl } = useUserTvl(pools, tokens);
   const classes = useStyles();
 
-  let myTvl = 0;
-  pools.forEach(pool => {
-    const sharesBalance = new BigNumber(tokens[pool.earnedToken].tokenBalance);
-    if (sharesBalance > 0) {
-      const deposited = byDecimals(
-        sharesBalance.multipliedBy(new BigNumber(pool.pricePerFullShare)),
-        pool.tokenDecimals
-      );
-      myTvl += deposited * pool.oraclePrice;
-    }
-  });
+  useEffect(() => {
+    fetchApys();
+    const id = setInterval(fetchApys, FETCH_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [fetchApys]);
 
   useEffect(() => {
-    fetchPoolsInfo();
-  }, [fetchPoolsInfo]);
-
-  useEffect(() => {
-    if (address && web3) {
-      const fetch = () => {
+    const fetch = () => {
+      if (address && web3) {
         fetchBalances({ address, web3, tokens });
-        fetchVaultsData({ address, web3, pools });
-        fetchApys();
-      };
-      fetch();
+      }
+      fetchVaultsData({ address, web3, pools });
+    };
+    fetch();
 
-      const id = setInterval(fetch, FETCH_INTERVAL_MS);
-      return () => clearInterval(id);
-    }
+    const id = setInterval(fetch, FETCH_INTERVAL_MS);
+    return () => clearInterval(id);
 
     // Adding tokens and pools to this dep list, causes an endless loop, DDoSing the api
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,8 +67,8 @@ export default function Pools() {
 
           <span className={classes.text}>
             {t('Vault-Deposited')}{' '}
-            {fetchVaultsDataDone ? (
-              formatGlobalTvl(myTvl)
+            {fetchVaultsDataDone && fetchBalancesDone ? (
+              formatGlobalTvl(userTvl)
             ) : (
               <TVLLoader className={classes.titleLoader} />
             )}
@@ -95,7 +81,6 @@ export default function Pools() {
 
       <VisiblePools
         pools={pools}
-        poolsInfo={poolsInfo}
         apys={apys}
         tokens={tokens}
         fetchBalancesDone={fetchBalancesDone}

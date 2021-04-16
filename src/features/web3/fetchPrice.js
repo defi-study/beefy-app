@@ -52,9 +52,9 @@ const fetchCoingecko = async ids => {
   }
 };
 
-const fetchPancake = async () => {
+const fetchTokens = async () => {
   try {
-    const response = await axios.get(`https://api.beefy.finance/pancake/price?_=1616165176`);
+    const response = await axios.get(`https://api.beefy.finance/prices?_=1618264366`);
     return response.data;
   } catch (err) {
     console.error(err);
@@ -62,19 +62,9 @@ const fetchPancake = async () => {
   }
 };
 
-const fetchLP = async () => {
+const fetchLPs = async () => {
   try {
-    const response = await axios.get(`https://api.beefy.finance/lps?_=1616165176`);
-    return response.data;
-  } catch (err) {
-    console.error(err);
-    return {};
-  }
-};
-
-const fetchBakery = async () => {
-  try {
-    const response = await axios.get(`https://api.beefy.finance/bakery/price?_=1616165176`);
+    const response = await axios.get(`https://api.beefy.finance/lps?_=1618264366`);
     return response.data;
   } catch (err) {
     console.error(err);
@@ -83,13 +73,17 @@ const fetchBakery = async () => {
 };
 
 const oracleEndpoints = {
-  bakery: () => fetchBakery(),
   coingecko: ids => fetchCoingecko(ids),
-  pancake: () => fetchPancake(),
-  lps: () => fetchLP(),
+  tokens: () => fetchTokens(),
+  lps: () => fetchLPs(),
 };
 
-export async function initializePriceCache() {
+let pricesLoadedPromise;
+export function whenPricesLoaded() {
+  return pricesLoadedPromise;
+}
+
+export function initializePriceCache() {
   const currentTimestamp = new Date();
   priceCache.lastUpdated = currentTimestamp;
 
@@ -109,24 +103,22 @@ export async function initializePriceCache() {
   });
 
   const promises = [...oracleToIds.keys()].map(key => oracleEndpoints[key](oracleToIds.get(key)));
-  const results = await Promise.all(promises);
-  const allPrices = results.reduce((accPrices, curPrices) => ({ ...accPrices, ...curPrices }), {});
-  [...oracleToIds.values()].flat().forEach(id => priceCache.cache.set(id, allPrices[id]));
+  pricesLoadedPromise = Promise.all(promises).then(results => {
+    const allPrices = results.reduce(
+      (accPrices, curPrices) => ({ ...accPrices, ...curPrices }),
+      {}
+    );
+    [...oracleToIds.values()].flat().forEach(id => priceCache.cache.set(id, allPrices[id]));
+  });
 }
 
-export const fetchPrice = async ({ id }) => {
+export const fetchPrice = ({ id }) => {
   if (id === undefined) {
     console.error('Undefined pair');
     return 0;
   }
 
-  let counter = 0; // safe guard, though it shouldn't happen
-  while (!isCached(id) && counter < 10) {
-    // console.trace(id, 'price not cached');
-    counter++;
-  }
-
   maybeUpdateCache();
 
-  return getCachedPrice(id) ? getCachedPrice(id) : 0;
+  return getCachedPrice(id) || 0;
 };

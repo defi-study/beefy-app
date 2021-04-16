@@ -4,6 +4,7 @@ import { initReactI18next } from 'react-i18next';
 
 import translationCN from './locales/cn/translation.json';
 import translationDE from './locales/de/translation.json';
+import translationEL from './locales/el/translation.json';
 import translationEN from './locales/en/translation.json';
 import translationES from './locales/es/translation.json';
 import translationFR from './locales/fr/translation.json';
@@ -11,6 +12,7 @@ import translationHI from './locales/hi/translation.json';
 import translationID from './locales/id/translation.json';
 import translationIT from './locales/it/translation.json';
 import translationKO from './locales/ko/translation.json';
+import translationNL from './locales/nl/translation.json';
 import translationPT from './locales/pt/translation.json';
 import translationRU from './locales/ru/translation.json';
 import translationSE from './locales/se/translation.json';
@@ -18,9 +20,11 @@ import translationTR from './locales/tr/translation.json';
 import translationUK from './locales/uk/translation.json';
 import translationZH from './locales/zh/translation.json';
 
+
 const resources = {
   cn: { translation: translationCN },
   de: { translation: translationDE },
+  el: { translation: translationEL },
   en: { translation: translationEN },
   es: { translation: translationES },
   fr: { translation: translationFR },
@@ -28,6 +32,7 @@ const resources = {
   id: { translation: translationID },
   it: { translation: translationIT },
   ko: { translation: translationKO },
+  nl: { translation: translationNL },
   pt: { translation: translationPT },
   ru: { translation: translationRU },
   se: { translation: translationSE },
